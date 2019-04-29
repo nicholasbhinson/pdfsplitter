@@ -159,7 +159,7 @@ class MasterFrame(wx.Frame):
 								rangeBegin += 1
 					#~ if the current pages item does not contain a hyphen, do this
 					else:
-						add the current pages item to the final array
+						# add the current pages item to the final array
 						iterReturn.append(int(pages[i]))
 				#~ after building the final array, create a save dialog box to decide on a file path and name
 				savedlg = wx.FileDialog(self,message="Create Merged File",defaultDir=base_dir,defaultFile=returnFile[-(returnFile[::-1].find("/")):],wildcard="*.pdf",style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
