@@ -4,15 +4,17 @@ import wx
 from wx import adv
 import re
 
-
+# get application working directory
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
+# Build main window details
 class MasterFrame(wx.Frame):
 	def __init__(self):
 		wx.Frame.__init__(self,None,wx.ID_ANY, title='PDF Splitter')
 		
 		self.panel = wx.Panel(self,wx.ID_ANY)
 		
+		# Build menu bar
 		filemenu = wx.Menu()
 		
 		fquit = filemenu.Append(wx.ID_EXIT,"Exit","Terminate the Program")
@@ -24,19 +26,21 @@ class MasterFrame(wx.Frame):
 		
 		self.Bind(wx.EVT_MENU,self.onQuit,fquit)
 		
+		# Build main controls area
 		self.mainbagsizer = wx.GridBagSizer(5,5)
 		
 		self.controls_gb = wx.GridBagSizer(5,5)
 		self.controls_box = wx.StaticBox(self.panel,wx.ID_ANY,)
 		self.controls_sz = wx.StaticBoxSizer(self.controls_box,wx.VERTICAL)
 		
+		# Multiple file picker
 		self.file_label = wx.StaticText(self.panel,id=wx.ID_ANY,label="Pick File:")
 		self.controls_gb.Add(self.file_label,pos=(0,0),span=(1,1),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL,border=8)
 		
 		self.filepath = wx.ListBox(self.panel,id=wx.ID_ANY,choices=[],style=wx.LB_EXTENDED|wx.LB_NEEDED_SB|wx.LB_HSCROLL,name="selectedFiles")
 		self.controls_gb.Add(self.filepath,pos=(0,1),span=(4,7),flag=wx.EXPAND|wx.ALL,border=8)
 		
-		
+		# file picker actions
 		self.filebrowse = wx.Button(self.panel,label="Add Files",id=wx.ID_ANY)
 		self.controls_gb.Add(self.filebrowse,pos=(0,8),span=(1,1),flag=wx.EXPAND|wx.ALL,border=8)
 		
@@ -46,7 +50,7 @@ class MasterFrame(wx.Frame):
 		self.fileclear = wx.Button(self.panel,label="Clear Files",id=wx.ID_ANY)
 		self.controls_gb.Add(self.fileclear,pos=(2,8),span=(1,1),flag=wx.EXPAND|wx.ALL,border=8)
 		
-		
+		# new file details
 		self.filePathNew_label = wx.StaticText(self.panel,id=wx.ID_ANY,label="Select Save Location")
 		self.controls_gb.Add(self.filePathNew_label,pos=(4,0),span=(1,1),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL,border=8)
 		
@@ -63,19 +67,20 @@ class MasterFrame(wx.Frame):
 		self.fileType = wx.StaticText(self.panel,id=wx.ID_ANY,label=".pdf")
 		self.controls_gb.Add(self.fileType,pos=(5,6),span=(1,1),flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL,border=0)
 		
+		# Main execution button that changes depending on which radio button action is selected
 		self.printbtn = wx.Button(self.panel,label="Get File(s)",id=wx.ID_ANY)
 		self.controls_gb.Add(self.printbtn,pos=(5,7),span=(1,1),flag=wx.ALL,border=8)
 		
-		
+		# radio buttons
 		actions = ["Extract selected pages to single file","Split all pages into separate files","Merge Files"]
 		self.radioActions = wx.RadioBox(self.panel,id=wx.ID_ANY,label="Actions",choices=actions,style=wx.RA_SPECIFY_ROWS,name="radioActions")
 		self.controls_gb.Add(self.radioActions,pos=(6,0),span=(1,3),flag=wx.EXPAND|wx.ALL,border=8)
-		#~ self.radioActions.SetSelection(2)
 		
+		#file and page selection text box
 		self.filePages = wx.TextCtrl(self.panel,id=wx.ID_ANY,style=wx.TE_MULTILINE,name="Extract Page Selection")
 		self.controls_gb.Add(self.filePages,pos=(6,3),span=(1,6),flag=wx.EXPAND|wx.ALL,border=8)
 		
-		
+		# finial cleanup and formatting of content window
 		self.controls_sz.Add(self.controls_gb)
 		self.mainbagsizer.Add(self.controls_sz,pos=(0,0),span=(1,1),flag=wx.EXPAND|wx.ALL,border=8)
 		
@@ -83,6 +88,7 @@ class MasterFrame(wx.Frame):
 		self.mainbagsizer.Fit(self)
 		self.panel.Layout()
 		
+		# Bind button clicks to functions
 		self.Bind(wx.EVT_BUTTON,self.fileClick,self.printbtn)
 		self.Bind(wx.EVT_BUTTON,self.browseClick,self.filebrowse)
 		self.Bind(wx.EVT_BUTTON,self.removeClick,self.fileremove)
@@ -94,7 +100,8 @@ class MasterFrame(wx.Frame):
 		
 	def onQuit(self,event):
 		self.Destroy()
-		
+	
+	# Open file selection window
 	def browseClick(self,event):
 		dlg = wx.FileDialog(self.panel,defaultDir=base_dir,defaultFile="",wildcard="*.pdf",style=wx.FD_OPEN|wx.FD_MULTIPLE|wx.FD_CHANGE_DIR)
 		if dlg.ShowModal() == wx.ID_OK:
@@ -108,14 +115,17 @@ class MasterFrame(wx.Frame):
 					self.filepath.Append(path)
 		dlg.Destroy()
 		
+	# Remove selected file(s) from list box
 	def removeClick(self,event):
 		files = self.filepath.GetSelections()
 		for i in reversed(range(len(files))):
 			self.filepath.Delete(files[i])
 		
+	# Remove all files from list box
 	def clearClick(self,event):
 		self.filepath.Clear()
 		
+	# Show and hide the file/page selection text box based on which radio button is selected
 	def radioSelect(self,event):
 		rSelect = self.radioActions.GetSelection()
 		if rSelect == 0:
@@ -123,6 +133,7 @@ class MasterFrame(wx.Frame):
 		else:
 			self.controls_gb.Hide(self.filePages,True)
 		
+	# Main action triggered by the "Get File(s)" button
 	def fileClick(self,event):
 		returnAction = self.radioActions.GetSelection()
 		
@@ -232,7 +243,7 @@ class MasterFrame(wx.Frame):
 		else:
 			pass
 
-
+# initialize main application loop
 if __name__ == '__main__':
 	app = wx.App(False)
 	frame = MasterFrame().Show()
